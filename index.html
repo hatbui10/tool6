@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Upgrade</title>
+
+<style>
+:root {
+    --neon-gold: #ffcc00;
+}
+
+body {
+    background: #000;
+    color: var(--neon-gold);
+    margin: 20px 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+/* Phần 1: Hàng 6 ô copy */
+.copy-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    width: 100%;
+    max-width: 310px;
+    margin-bottom: 20px;
+}
+
+/* Phần 2: Ô nhập liệu */
+#n-input {
+    width: 50%;
+    max-width: 360px;
+    font-size: 2.5rem;
+    text-align: center;
+    display: block;  
+    margin: 20px auto;
+    padding: 10px;
+    background: #080808;
+    color: #fff;
+    border: 2px solid var(--neon-gold);
+    border-radius: 10px;
+}
+
+/* Phần 3: Ma trận 7x7 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    max-width: 360px;
+    width: 100%;
+}
+
+.cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050505;
+    border: 1px solid var(--neon-gold);
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: var(--neon-gold);
+    border-radius: 10px;
+}
+
+.active { text-shadow: 0 0 8px rgba(255,204,0,0.8); }
+.match { background: #00bfff; color: #000; }
+.orange { background: orange; color: #000; }
+</style>
+</head>
+
+<body>
+
+<div class="copy-row" id="copy-area"></div>
+
+<input id="n-input" type="number" placeholder="Nhập số">
+
+<div class="grid" id="matrix"></div>
+
+<script>
+const matrix = document.getElementById('matrix');
+const copyArea = document.getElementById('copy-area');
+const input = document.getElementById('n-input');
+const TOTAL = 49;
+
+let numbers = [];
+
+function render() {
+    matrix.innerHTML = "";
+    copyArea.innerHTML = "";
+
+    const refIndex = 0; 
+    const refVal = numbers[refIndex];
+    let targetIndex = -1;
+
+    // Tìm ô trùng lặp từ vị trí 21 trở đi
+    if (refVal !== undefined) {
+        let minDistance = Infinity;
+        for (let i = 21; i < numbers.length; i++) {
+            if (numbers[i] == refVal) {
+                const dist = i - refIndex;
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    targetIndex = i;
+                }
+            }
+        }
+    }
+
+    // 1. Hiển thị hàng 6 ô COPY (Lấy từ targetIndex và 5 ô bên PHẢI của nó trong mảng)
+    for (let i = 0; i < 6; i++) {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        
+        // Trong mảng unshift, ô bên PHẢI (vừa nhập hơn) là targetIndex - i
+        const sourceIdx = targetIndex - i;
+        
+        if (targetIndex !== -1 && sourceIdx >= 0 && numbers[sourceIdx] !== undefined) {
+            div.textContent = numbers[sourceIdx];
+            div.classList.add("active");
+            if (i === 0) div.classList.add("match");
+            else div.classList.add("orange");
+        }
+        copyArea.appendChild(div);
+    }
+
+    // 2. Hiển thị MA TRẬN 7x7
+    for (let row = 0; row < 7; row++) {
+        for (let col = 0; col < 7; col++) {
+            const div = document.createElement('div');
+            div.className = 'cell';
+
+            const index = row * 7 + (6 - col);
+            const val = numbers[index] ?? "";
+
+            div.textContent = val;
+            if (val !== "") div.classList.add("active");
+
+            // Ô trùng (Màu xanh)
+            if (index === targetIndex) {
+                div.classList.add("match");
+            }
+
+            // ĐÚNG LOGIC CŨ: Tô màu cam cho 5 ô bên PHẢI ô màu xanh
+            if (targetIndex !== -1) {
+                const distance = targetIndex - index; 
+                if (distance >= 1 && distance <= 5) {
+                    div.classList.add("orange");
+                }
+            }
+
+            matrix.appendChild(div);
+        }
+    }
+}
+
+input.addEventListener('input', e => {
+    const val = e.target.value;
+    if (!val) return;
+    const num = val.slice(-1);
+    numbers.unshift(num);
+    if (numbers.length > TOTAL) numbers.pop();
+    render();
+    e.target.value = "";
+});
+
+window.onload = () => { render(); input.focus(); };
+document.addEventListener('click', () => input.focus());
+</script>
+
+</body>
+</html>
