@@ -30,19 +30,45 @@ body {
     margin-bottom: 20px;
 }
 
-/* Phần 2: Ô nhập liệu */
+/* Phần 2: Ô nhập liệu & Nút Undo bên dưới */
+.input-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 #n-input {
     width: 50%;
     max-width: 360px;
     font-size: 2.5rem;
     text-align: center;
     display: block;  
-    margin: 20px auto;
+    margin: 10px auto;
     padding: 10px;
     background: #080808;
     color: #fff;
     border: 2px solid var(--neon-gold);
     border-radius: 10px;
+}
+
+#undo-btn {
+    background: transparent;
+    color: var(--neon-gold);
+    border: 1px solid var(--neon-gold);
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    transition: 0.2s;
+}
+
+#undo-btn:active {
+    background: var(--neon-gold);
+    color: #000;
 }
 
 /* Phần 3: Ma trận 7x7 */
@@ -77,7 +103,10 @@ body {
 
 <div class="copy-row" id="copy-area"></div>
 
-<input id="n-input" type="number" placeholder="Nhập số">
+<div class="input-section">
+    <input id="n-input" type="number" placeholder="Nhập số">
+    <button id="undo-btn">Hoàn tác </button>
+</div>
 
 <div class="grid" id="matrix"></div>
 
@@ -85,6 +114,7 @@ body {
 const matrix = document.getElementById('matrix');
 const copyArea = document.getElementById('copy-area');
 const input = document.getElementById('n-input');
+const undoBtn = document.getElementById('undo-btn');
 const TOTAL = 49;
 
 let numbers = [];
@@ -111,12 +141,11 @@ function render() {
         }
     }
 
-    // 1. Hiển thị hàng 6 ô COPY (Lấy từ targetIndex và 5 ô bên PHẢI của nó trong mảng)
+    // 1. Hiển thị hàng 6 ô COPY
     for (let i = 0; i < 6; i++) {
         const div = document.createElement('div');
         div.className = 'cell';
         
-        // Trong mảng unshift, ô bên PHẢI (vừa nhập hơn) là targetIndex - i
         const sourceIdx = targetIndex - i;
         
         if (targetIndex !== -1 && sourceIdx >= 0 && numbers[sourceIdx] !== undefined) {
@@ -140,12 +169,10 @@ function render() {
             div.textContent = val;
             if (val !== "") div.classList.add("active");
 
-            // Ô trùng (Màu xanh)
             if (index === targetIndex) {
                 div.classList.add("match");
             }
 
-            // ĐÚNG LOGIC CŨ: Tô màu cam cho 5 ô bên PHẢI ô màu xanh
             if (targetIndex !== -1) {
                 const distance = targetIndex - index; 
                 if (distance >= 1 && distance <= 5) {
@@ -166,6 +193,16 @@ input.addEventListener('input', e => {
     if (numbers.length > TOTAL) numbers.pop();
     render();
     e.target.value = "";
+});
+
+// Xử lý nút Undo
+undoBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Không để ảnh hưởng tới focus của body
+    if (numbers.length > 0) {
+        numbers.shift();
+        render();
+    }
+    input.focus();
 });
 
 window.onload = () => { render(); input.focus(); };
