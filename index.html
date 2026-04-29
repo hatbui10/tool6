@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matrix Upgrade</title>
+<title>Tool6</title>
 
 <style>
 :root {
@@ -30,22 +30,14 @@ body {
     margin-bottom: 20px;
 }
 
-/* Phần 2: Ô nhập liệu & Nút Undo bên dưới */
-.input-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-}
-
+/* Phần 2: Ô nhập liệu */
 #n-input {
     width: 50%;
     max-width: 360px;
     font-size: 2.5rem;
     text-align: center;
     display: block;  
-    margin: 10px auto;
+    margin: 20px auto 5px auto; /* Chỉnh lại margin dưới để nút undo sát lại */
     padding: 10px;
     background: #080808;
     color: #fff;
@@ -53,17 +45,17 @@ body {
     border-radius: 10px;
 }
 
+/* Style cho nút Undo bổ sung */
 #undo-btn {
+    display: block;
+    margin: 0 auto 20px auto;
     background: transparent;
     color: var(--neon-gold);
     border: 1px solid var(--neon-gold);
-    padding: 8px 20px;
+    padding: 5px 15px;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    transition: 0.2s;
+    font-size: 0.9rem;
 }
 
 #undo-btn:active {
@@ -103,10 +95,8 @@ body {
 
 <div class="copy-row" id="copy-area"></div>
 
-<div class="input-section">
-    <input id="n-input" type="number" placeholder="Nhập số">
-    <button id="undo-btn">Hoàn tác </button>
-</div>
+<input id="n-input" type="number" placeholder="Nhập số">
+<button id="undo-btn">UNDO</button>
 
 <div class="grid" id="matrix"></div>
 
@@ -114,7 +104,7 @@ body {
 const matrix = document.getElementById('matrix');
 const copyArea = document.getElementById('copy-area');
 const input = document.getElementById('n-input');
-const undoBtn = document.getElementById('undo-btn');
+const undoBtn = document.getElementById('undo-btn'); // Lấy nút undo
 const TOTAL = 49;
 
 let numbers = [];
@@ -169,10 +159,12 @@ function render() {
             div.textContent = val;
             if (val !== "") div.classList.add("active");
 
+            // Ô trùng (Màu xanh)
             if (index === targetIndex) {
                 div.classList.add("match");
             }
 
+            // ĐÚNG LOGIC CŨ
             if (targetIndex !== -1) {
                 const distance = targetIndex - index; 
                 if (distance >= 1 && distance <= 5) {
@@ -195,11 +187,11 @@ input.addEventListener('input', e => {
     e.target.value = "";
 });
 
-// Xử lý nút Undo
+// Logic cho nút Undo bổ sung
 undoBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Không để ảnh hưởng tới focus của body
+    e.stopPropagation(); 
     if (numbers.length > 0) {
-        numbers.shift();
+        numbers.shift(); 
         render();
     }
     input.focus();
